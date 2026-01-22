@@ -1,27 +1,28 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Profit Card — Nova (debugged)</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Profit Card — Nova (FINAL)</title>
+  <meta name="robots" content="noindex">
   <style>
+    /* ---------- CORE THEME ---------- */
     :root{
-      --bg:#f7f9fb;
-      --card-bg: #ffffff;
+      --bg:#f3f6fb;
+      --card-bg:#ffffff;
       --muted:#6b7280;
-      --accent-1: linear-gradient(135deg,#5616af 0%,#4706d4 100%);
-      --accent-2: linear-gradient(135deg,#7221d5 0%,#8f3bf6 100%);
+      --accent-start:#0ea5e9;
+      --accent-end:#7c3aed;
       --success:#10b981;
       --danger:#ef4444;
-      --glass: rgba(255,255,255,0.7);
-      --radius:16px;
-      --shadow: 0 6px 30px rgba(16,24,40,0.08);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      --glass: rgba(255,255,255,0.78);
+      --radius:18px;
+      --shadow: 0 12px 45px rgba(2,6,23,0.10);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     }
 
-    html,body{height:100%;}
+    html,body{height:100%;margin:0}
     body{
-      margin:0;
       display:flex;
       align-items:center;
       justify-content:center;
@@ -31,117 +32,109 @@
       -moz-osx-font-smoothing:grayscale;
     }
 
-    .wrap{display:flex;flex-direction:column;align-items:center;gap:14px}
-
-    /* Card layout */
+    /* ---------- WRAPPER & CARD ---------- */
+    .wrap{perspective:1200px;display:flex;flex-direction:column;align-items:center;gap:14px}
     .card{
-      width:420px;
+      width:480px;
       border-radius:var(--radius);
       background:var(--card-bg);
       box-shadow:var(--shadow);
       overflow:hidden;
       position:relative;
       border:1px solid rgba(15,23,42,0.05);
+      transform-style:preserve-3d;
+      transition:transform .28s ease, box-shadow .28s ease;
     }
+    .card.tilted{box-shadow:0 26px 80px rgba(2,6,23,0.18)}
 
+    /* ---------- BANNER ---------- */
     .card__banner{
-      height:130px;
-      background:var(--accent-2);
-      background-size:cover;
+      height:150px;
+      background: linear-gradient(135deg, var(--accent-start), var(--accent-end));
       display:flex;
       align-items:flex-end;
-      padding:16px 18px;
-      gap:12px;
+      padding:18px;
+      gap:14px;
+      position:relative;
+    }
+    .banner-halo{
+      position:absolute; right:14px; bottom:-8px;
+      width:120px;height:120px;border-radius:50%;
+      background:radial-gradient(circle at 30% 30%, rgba(255,255,255,0.12), rgba(255,255,255,0) 40%);
+      filter: blur(18px);
+      transform: translateZ(40px);
+      pointer-events:none;
     }
 
     .avatar{
-      width:62px;height:62px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:18px;
-      background:var(--accent-1);
-      box-shadow: 0 8px 22px rgba(99,102,241,0.14);
-      flex-shrink:0; overflow:hidden;
+      width:72px;height:72px;border-radius:14px;overflow:hidden;flex-shrink:0;
+      transform: translateZ(60px);
+      display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#6d28d9,#0891b2);
+      box-shadow: 0 10px 30px rgba(99,102,241,0.12);
     }
-    .avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;   /* 👈 THIS is the key */
-  padding: 6px;          /* optional: breathing space */
-  display: block;
-  border-radius: 12px;
-  background: transparent;
-}
+    .avatar img{width:100%;height:100%;object-fit:contain;padding:10px;display:block;border-radius:12px;background:transparent}
 
+    .title{color:white;font-size:18px;font-weight:800;text-shadow:0 6px 18px rgba(0,0,0,0.16)}
+    .subtitle{color:rgba(255,255,255,0.92);font-size:12px}
 
-    .title{color:white;font-size:16px;font-weight:700;}
-    .subtitle{color:rgba(255,255,255,0.94);font-size:12px;opacity:0.95}
-
-    .card__content{padding:18px}
-
+    /* ---------- CONTENT ---------- */
+    .card__content{padding:18px;transform:translateZ(30px)}
     .row{display:flex;align-items:center;justify-content:space-between}
     .col{display:flex;flex-direction:column}
-
     .label{font-size:12px;color:var(--muted)}
-    .value{font-size:20px;font-weight:800}
-
+    .value-accent{font-size:20px;font-weight:900;background:linear-gradient(90deg,#7c3aed,#06b6d4);-webkit-background-clip:text;color:transparent}
     .pnl{font-weight:800}
     .pnl.positive{color:var(--success)}
     .pnl.negative{color:var(--danger)}
-
-    .badge{
-      display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:700;background:rgba(255,255,255,0.18);backdrop-filter:blur(6px);color:white
-    }
-
-    .info-row{display:flex;gap:12px;align-items:center;margin-top:12px;flex-wrap:wrap}
-    .info-pill{background:#f3f4f6;padding:8px 10px;border-radius:10px;font-size:12px;color:#111827;font-weight:600;box-shadow:0 4px 14px rgba(17,24,39,0.03)}
-
     .small-muted{font-size:12px;color:var(--muted)}
 
-    /* Sparkline container */
-    .sparkline-wrap{width:180px;height:48px;display:flex;align-items:center;justify-content:center}
+    /* ---------- TOKEN SELECT ---------- */
+    .token-select{
+      display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;background:#fff;border:1px solid rgba(15,23,42,0.06);font-weight:800;
+    }
+    .token-select select{background:transparent;border:0;outline:none;font-weight:800;appearance:none;padding-right:6px}
 
-    /* footer */
-    .foot{display:flex;align-items:center;justify-content:space-between;margin-top:16px}
-    .btn{border-radius:10px;padding:8px 12px;border:0;font-weight:700;cursor:pointer}
-    .btn--ghost{background:transparent;color:var(--muted);border:1px solid rgba(15,23,42,0.04)}
-    .btn--primary{background:#0f172a;color:white;box-shadow:0 10px 30px rgba(15,23,42,0.12)}
+    /* ---------- 3D CHART ---------- */
+    .chart-3d-wrap{width:100%;height:160px;display:flex;align-items:flex-end;justify-content:center;margin-top:12px;transform-style:preserve-3d}
+    .chart-3d{width:94%;height:130px;transform:rotateX(16deg) skewX(-5deg) translateZ(20px);transform-origin:center bottom;border-radius:10px;overflow:visible}
+    svg.area{width:100%;height:100%;display:block}
+    .chart-grid line{stroke:rgba(15,23,42,0.04);stroke-width:1}
+    .chart-grid .hline{stroke-dasharray:3 4}
+    .layer{opacity:0.96;transition:all .7s cubic-bezier(.2,.9,.2,1)}
+    .depth-1{transform:translateY(6px) scale(.995);opacity:.6}
+    .depth-2{transform:translateY(12px) scale(.99);opacity:.36}
 
-    /* more details area inside card */
+    /* ---------- INFO / DETAILS ---------- */
+    .info-row{display:flex;gap:12px;align-items:center;margin-top:12px;flex-wrap:wrap}
+    .info-pill{background:linear-gradient(180deg,#ffffff,#fbfdff);padding:8px 12px;border-radius:10px;font-size:12px;color:#111827;font-weight:700;box-shadow:0 8px 24px rgba(15,23,42,0.04)}
     .details{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
     .detail-card{background:linear-gradient(180deg,#ffffff,#fbfdff);padding:10px;border-radius:10px;border:1px solid rgba(15,23,42,0.03);box-shadow:0 6px 18px rgba(12,18,35,0.03)}
-    .detail-card .k{font-size:12px;color:var(--muted)} .detail-card .v{font-weight:700;margin-top:6px;font-size:14px}
+    .detail-card .k{font-size:12px;color:var(--muted)} .detail-card .v{font-weight:800;margin-top:6px;font-size:14px;background:linear-gradient(90deg,#06b6d4,#7c3aed);-webkit-background-clip:text;color:transparent}
 
-    /* utilities */
-    .muted{color:var(--muted)}
-    .pos{color:var(--success)}
-    .neg{color:var(--danger)}
+    .foot{display:flex;align-items:center;justify-content:space-between;margin-top:14px}
+    .btn{border-radius:10px;padding:8px 12px;border:0;font-weight:800;cursor:pointer}
+    .btn--ghost{background:transparent;color:var(--muted);border:1px solid rgba(15,23,42,0.06)}
+    .btn--primary{background:linear-gradient(90deg,#0f172a,#0ea5e9);color:white;box-shadow:0 10px 30px rgba(2,6,23,0.12)}
 
-    /* animations */
-    .fade-in{animation:fadeIn 420ms ease both}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+    .hint{text-align:center;font-size:12px;color:var(--muted);margin-top:8px}
 
-    @media (max-width:460px){
-      .card{width:100%}
-      .wrap{padding:12px}
-    }
+    /* responsive */
+    @media (max-width:540px){ .card{width:100%} .chart-3d{transform:rotateX(14deg) skewX(-4deg) translateZ(10px)} }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="card fade-in" role="region" aria-label="Profit card">
+    <div class="card" id="card" role="region" aria-label="Profit card">
       <div class="card__banner">
-        <div class="avatar" id="avatar">
-          <!-- Put your image path relative to this HTML file here -->
-          <img src="nova-icon.jpg" style="width:62px;height:62px;object-fit:contain;padding:8px;">
-
-        </div>
-
+        <div class="banner-halo" aria-hidden></div>
+        <div class="avatar"><img id="avatar-img" src="nova-icon.jpg" alt="Nova icon"></div>
         <div style="flex:1">
           <div class="title" id="card-title">Nova Portfolio</div>
+          
         </div>
-
-        <div>
-          <div class="badge" id="roi-badge" title="Approx return">
-            <strong id="roi-text">+50%</strong>
-            <span class="small-muted" style="font-weight:600">ROI</span>
+        <div style="transform:translateZ(60px)">
+          <div style="background:rgba(255,255,255,0.12);padding:8px 12px;border-radius:999px;color:white;font-weight:800">
+            <strong id="roi-text">+0%</strong> ROI
           </div>
         </div>
       </div>
@@ -150,8 +143,7 @@
         <div class="row">
           <div class="col">
             <div class="label">Invested</div>
-            <div class="value" id="invested">$0.00</div>
-
+            <div class="value-accent" id="invested">$0.00</div>
           </div>
 
           <div class="col" style="text-align:right">
@@ -161,250 +153,277 @@
           </div>
         </div>
 
-        <div class="row" style="margin-top:12px;align-items:center">
-          <div style="flex:1">
-            <div class="label">Position (units)</div>
-            <div class="value" id="position">0</div>
+        <div style="margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div>
+            <div class="label">Position</div>
+            <div class="value-accent" id="positionDisplay">$0.00</div>
             <div class="small-muted" id="avg-price">Avg Price: $0.00</div>
           </div>
 
-          <div class="sparkline-wrap" aria-hidden>
-            <svg id="sparkline" width="180" height="48" viewBox="0 0 180 48"></svg>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+            <div class="token-select" title="Select token for amount display">
+              <select id="tokenSelect" aria-label="Choose token">
+                <option value="SOL">SOL</option>
+                <option value="BNB">BNB</option>
+                <option value="USD">USD</option>
+              </select>
+              <span style="font-size:12px;color:var(--muted);font-weight:800">Token</span>
+            </div>
           </div>
         </div>
 
-        <div class="info-row" aria-hidden>
-          <div class="info-pill" id="change24">24h +<span id="change24-val">3.2%</span></div>
-          <div class="info-pill" id="ath">All-time PNL <strong id="ath-val">$0</strong></div>
-          <div class="info-pill" id="last-trade">Last trade <span id="last-trade-val">just now</span></div>
-          <div class="info-pill" id="risk">Risk <strong id="risk-val">Medium</strong></div>
+        <div class="chart-3d-wrap" aria-hidden>
+          <div class="chart-3d">
+            <svg class="area" viewBox="0 0 1000 260" preserveAspectRatio="none" id="svgChart">
+              <defs>
+                <linearGradient id="g1" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stop-color="#10b981" stop-opacity="0.95"/>
+                  <stop offset="100%" stop-color="#10b981" stop-opacity="0.06"/>
+                </linearGradient>
+                <linearGradient id="g2" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.9"/>
+                  <stop offset="100%" stop-color="#06b6d4" stop-opacity="0.04"/>
+                </linearGradient>
+                <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#0b1220" flood-opacity="0.12"/>
+                </filter>
+              </defs>
+
+              <g class="chart-grid">
+                <line x1="0" y1="40" x2="1000" y2="40" class="hline"></line>
+                <line x1="0" y1="100" x2="1000" y2="100" class="hline"></line>
+                <line x1="0" y1="160" x2="1000" y2="160" class="hline"></line>
+                <line x1="0" y1="220" x2="1000" y2="220" class="hline"></line>
+              </g>
+
+              <g id="layer-2" class="layer depth-2"></g>
+              <g id="layer-1" class="layer depth-1"></g>
+              <g id="layer-0" class="layer"></g>
+              <g id="fg-glow"></g>
+            </svg>
+          </div>
         </div>
 
-        <div class="details" id="details">
-          <div class="detail-card">
-            <div class="k">Strategy</div>
-            <div class="v" id="strategy">Growth</div>
-          </div>
-
-          <div class="detail-card">
-            <div class="k">Win rate</div>
-            <div class="v" id="winrate">87%</div>
-          </div>
-
-
-          <div class="detail-card">
-            <div class="k">Sharpe (est.)</div>
-            <div class="v" id="sharpe">1.54</div>
-          </div>
+        <div class="info-row">
+          <div class="info-pill">24h <strong id="change24-val">+0%</strong></div>
+          <div class="info-pill">Last trade <span id="last-trade-val">just now</span></div>
+          <div class="info-pill">Risk <strong id="risk-val">Medium</strong></div>
         </div>
 
-        <div class="foot" style="margin-top:14px">
+        <div class="details">
+          <div class="detail-card"><div class="k">Strategy</div><div class="v" id="strategy">—</div></div>
+          <div class="detail-card"><div class="k">Win rate</div><div class="v" id="winrate">—</div></div>
+          <div class="detail-card"><div class="k">Sharpe (est.)</div><div class="v" id="sharpe">—</div></div>
+          <div class="detail-card"><div class="k">Liquidity</div><div class="v" id="liquidity">High</div></div>
+        </div>
+
+        <div class="foot">
           <div style="display:flex;align-items:center;gap:8px">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 17l6-6 4 4 8-8" stroke="#374151" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <div class="small-muted">
-  Real-time snapshot<br>
-  <span id="ny-time">Loading NY time...</span>
-</div>
-
+            <div style="font-size:12px;color:var(--muted)">Real-time snapshot<br><span id="ny-time">Loading NY time...</span></div>
           </div>
-
-          <div style="display:flex;gap:8px">
-            <button class="btn btn--ghost" id="btn-details">Details</button>
-          </div>
+          <div><button id="btn-details" class="btn btn--ghost">Details</button></div>
         </div>
       </div>
     </div>
 
-    <!-- REFRESH BUTTON placed below the card (outside) -->
-    <div style="display:flex;gap:10px;align-items:center">
-      <button id="btn-refresh" class="btn btn--primary" title="Generate new random portfolio">Refresh (randomize)</button>
-      <button id="btn-export" class="btn btn--ghost" title="Export screenshot (not implemented here)">Export</button>
+    <div style="display:flex;gap:10px;align-items:center;margin-top:12px">
+      <button id="btn-refresh" class="btn btn--primary">Refresh</button>
+      <button id="btn-export" class="btn btn--ghost">Export</button>
     </div>
+
+    <div class="hint">Move mouse to tilt — choose token to view amounts. If CSS doesn't update, hard refresh (Ctrl/Cmd+Shift+R).</div>
   </div>
 
   <script>
+  /* ---------- Utilities & NY time ---------- */
+  const $nyTime = document.getElementById('ny-time');
+  (function updNY(){ const now=new Date(); const f=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',year:'numeric',month:'short',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true,timeZoneName:'short'}); if($nyTime)$nyTime.textContent=f.format(now); setTimeout(updNY,1000); })();
 
+  // DOM refs
+  const $card = document.getElementById('card');
+  const $invested = document.getElementById('invested');
+  const $pnl = document.getElementById('pnl');
+  const $pnlPercent = document.getElementById('pnl-percent');
+  const $positionDisplay = document.getElementById('positionDisplay');
+  const $avgPrice = document.getElementById('avg-price');
+  const $roiText = document.getElementById('roi-text');
+  const $change24 = document.getElementById('change24-val');
+  const $lastTrade = document.getElementById('last-trade-val');
+  const $risk = document.getElementById('risk-val');
+  const $strategy = document.getElementById('strategy');
+  const $winrate = document.getElementById('winrate');
+  const tokenSelect = document.getElementById('tokenSelect');
+  const layer0 = document.getElementById('layer-0'), layer1 = document.getElementById('layer-1'), layer2 = document.getElementById('layer-2'), fgGlow = document.getElementById('fg-glow');
 
-const $nyTime = document.getElementById('ny-time');
+  const rand = (a,b)=> Math.random()*(b-a)+a;
+  const randInt = (a,b)=> Math.floor(Math.random()*(b-a+1))+a;
+  const clamp = (v,a,b)=> Math.max(a,Math.min(b,v));
+  const fmt = n => new Intl.NumberFormat(undefined,{style:'currency',currency:'USD',maximumFractionDigits:2}).format(n);
 
-  function updateNYTime() {
-    const now = new Date();
-
-    const formatter = new Intl.DateTimeFormat('en-US', {
-      timeZone: 'America/New_York',
-      year: 'numeric',
-      month: 'short',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: true,
-      timeZoneName: 'short'
-    });
-
-    if ($nyTime) {
-      $nyTime.textContent = formatter.format(now);
+  // CoinGecko fetch (public demo); fallback if fails
+  let tokenPrices = { SOL: 100, BNB: 320, USD: 1 };
+  async function fetchPrices(){
+    try{
+      const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana,binancecoin&vs_currencies=usd');
+      if(!res.ok) throw new Error('fetch failed');
+      const data = await res.json();
+      if(data.solana?.usd) tokenPrices.SOL = data.solana.usd;
+      if(data.binancecoin?.usd) tokenPrices.BNB = data.binancecoin.usd;
+    }catch(err){
+      console.warn('CoinGecko fetch failed — using fallback prices', err);
     }
   }
 
-  // Initial call
-  updateNYTime();
-
-  // Update every second
-  setInterval(updateNYTime, 1000);
-    /* Debugged logic and safe DOM updates */
-
-    // Determine avatar src from the HTML element (do not override unless you want to)
-    const $avatarImg = document.getElementById('avatar-img');
-    // If you want to force a different image, set novaIcon below to a URL and it will override:
-    // const novaIcon = 'https://example.com/your-nova.png';
-    // Otherwise keep undefined to use the HTML src attribute.
-    let novaIcon; // leave undefined to keep <img src="..."> as-is
-
-    if ($avatarImg && typeof novaIcon === 'string' && novaIcon.length) {
-      $avatarImg.src = novaIcon;
+  // Chart generation helpers
+  function makePointsFromPrices(startPrice, endPrice, points=22){
+    const arr=[];
+    for(let i=0;i<points;i++){
+      const t=i/(points-1);
+      const ease=Math.pow(t, 0.9 + Math.random()*0.4);
+      const jitter=(endPrice-startPrice)*0.02*(Math.random()-0.5);
+      const v = startPrice + (endPrice - startPrice)*ease + jitter;
+      arr.push(Math.max(0.0001, Math.round(v*100)/100));
     }
-    // DOM refs (some elements may not exist in other edits — guard by checking)
-    const $invested = document.getElementById('invested');
-    const $pnl = document.getElementById('pnl');
-    const $pnlPercent = document.getElementById('pnl-percent');
-    const $position = document.getElementById('position');
-    const $avgPrice = document.getElementById('avg-price');
-    const $roiText = document.getElementById('roi-text');
-    const $pctBadge = document.getElementById('roi-badge');
-    const $spark = document.getElementById('sparkline');
-    const $change24 = document.getElementById('change24-val');
-    const $ath = document.getElementById('ath-val');
-    const $lastTrade = document.getElementById('last-trade-val');
-    const $risk = document.getElementById('risk-val');
-    const $strategy = document.getElementById('strategy');
-    const $winrate = document.getElementById('winrate');
-    const $sharpe = document.getElementById('sharpe');
+    return arr;
+  }
+  function pointsToArea(points){
+    const w=1000,h=220,pad=40,len=points.length,min=Math.min(...points),max=Math.max(...points),range=Math.max(1e-6,max-min);
+    let path='';
+    points.forEach((p,i)=>{ const x=pad+(i/(len-1))*(w-pad*2); const y=pad+(1-(p-min)/range)*(h-pad*2); path += (i===0?'M ':' L ') + x.toFixed(2) + ' ' + y.toFixed(2); });
+    const coords = path.replace(/^M /,'').split(' L ').map(s=>s.split(' ').map(Number));
+    const last = coords[coords.length-1], first = coords[0], bottom = 220 - 18;
+    return { area: `${path} L ${last[0]} ${bottom} L ${first[0]} ${bottom} Z`, lastCoord: last };
+  }
+  function draw3D(points){
+    const {area:a0} = pointsToArea(points);
+    const offset1 = points.map(p => p - (Math.abs(p)*0.02 + 2));
+    const offset2 = points.map(p => p - (Math.abs(p)*0.04 + 6));
+    const a1 = pointsToArea(offset1).area;
+    const a2 = pointsToArea(offset2).area;
+    const l0 = document.createElementNS('http://www.w3.org/2000/svg','path');
+    const l1 = document.createElementNS('http://www.w3.org/2000/svg','path');
+    const l2 = document.createElementNS('http://www.w3.org/2000/svg','path');
+    layer0.innerHTML=''; layer1.innerHTML=''; layer2.innerHTML=''; fgGlow.innerHTML='';
+    l2.setAttribute('d', a2); l2.setAttribute('fill','url(#g2)'); l2.style.opacity='0.34'; l2.setAttribute('filter','url(#shadow)'); layer2.appendChild(l2);
+    l1.setAttribute('d', a1); l1.setAttribute('fill','url(#g2)'); l1.style.opacity='0.58'; l1.setAttribute('filter','url(#shadow)'); layer1.appendChild(l1);
+    l0.setAttribute('d', a0); l0.setAttribute('fill','url(#g1)'); l0.setAttribute('stroke','#065f52'); l0.setAttribute('stroke-width','2'); layer0.appendChild(l0);
+    // glow at end
+    const lastCoord = pointsToArea(points).lastCoord;
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx', lastCoord[0]); c.setAttribute('cy', lastCoord[1]); c.setAttribute('r', 8); c.setAttribute('fill', '#10b981'); c.setAttribute('fill-opacity','0.92'); fgGlow.appendChild(c);
+    // animate stroke
+    try {
+      const L = l0.getTotalLength();
+      l0.style.strokeDasharray = L; l0.style.strokeDashoffset = L; l0.getBoundingClientRect();
+      l0.style.transition = 'stroke-dashoffset 900ms cubic-bezier(.2,.9,.2,1)';
+      l0.style.strokeDashoffset = '0';
+      setTimeout(()=>{ l0.style.transition=''; l0.style.strokeDasharray=''; l0.style.strokeDashoffset=''; }, 1100);
+    } catch(e){}
+  }
 
-    // Helpers
-    function rand(min, max){
-      return Math.random() * (max - min) + min;
+  // core calculations from priceNow & avgPrice
+  function computeFromPrices(priceNow, avgPrice, invested){
+    const position = invested / avgPrice;
+    const currentValue = position * priceNow;
+    const pnl = +(currentValue - invested);
+    const pnlPercent = invested ? (pnl / invested) : 0;
+    return { position, currentValue, pnl, pnlPercent };
+  }
+
+  // deterministic helpers
+  function winrateFromPnl(pct){
+    const minP=0.35, maxP=0.75; const t = clamp((pct - minP)/(maxP - minP), 0, 1);
+    return `${Math.round(70 + t*(96-70))}%`;
+  }
+  function strategyFromPnl(pct){
+    if(pct > 0.62) return 'Aggressive Growth';
+    if(pct > 0.45) return 'Growth';
+    return 'Conservative';
+  }
+
+  // animate value helper
+  function animateValue(el, start, end, dur=700, format=(v)=>v){
+    const s = performance.now();
+    (function frame(now){
+      const p = Math.min(1,(now - s)/dur);
+      const eased = p < 0.5 ? 2*p*p : (-1 + (4 - 2*p)*p);
+      const val = start + (end - start) * eased;
+      el.textContent = format(val);
+      if(p < 1) requestAnimationFrame(frame);
+    })(performance.now());
+  }
+
+  // recalc view & update UI based on token and computed data
+  function recalcAndRender(state){
+    const token = tokenSelect.value;
+    if(token === 'USD'){
+      animateValue($positionDisplay, parseFloat($positionDisplay.textContent.replace(/[^0-9.-]+/g,''))||0, state.invested, 700, v=>fmt(v));
+      $avgPrice.textContent = '1 USD';
+      // keep PNL etc computed in USD (position is dollars)
+      animateValue($invested, parseFloat($invested.textContent.replace(/[^0-9.-]+/g,''))||0, state.invested, 700, v=>fmt(v));
+      animateValue($pnl, parseFloat($pnl.textContent.replace(/[^0-9.-]+/g,''))||0, state.pnl, 700, v=> (state.pnl>=0?'+':'-') + fmt(Math.abs(Math.round(v*100)/100)));
+      $pnlPercent.textContent = (state.pnlPercent>=0?'+':'') + (state.pnlPercent*100).toFixed(2) + '%';
+    } else {
+      const priceNow = tokenPrices[token] || 1;
+      const avgPrice = +(priceNow * (rand(0.55, 0.95))).toFixed(2);
+      const { position, currentValue, pnl, pnlPercent } = computeFromPrices(priceNow, avgPrice, state.invested);
+      animateValue($positionDisplay, parseFloat($positionDisplay.textContent.replace(/[^0-9.-]+/g,''))||0, position, 700, v=> `${Number(v).toFixed(4)} ${token} ≈ ${fmt(v*priceNow)}`);
+      $avgPrice.textContent = `Avg Price: ${fmt(avgPrice)} / ${token}`;
+      animateValue($invested, parseFloat($invested.textContent.replace(/[^0-9.-]+/g,''))||0, state.invested, 700, v=>fmt(v));
+      animateValue($pnl, parseFloat($pnl.textContent.replace(/[^0-9.-]+/g,''))||0, pnl, 700, v=> (pnl>=0?'+':'-') + fmt(Math.abs(Math.round(v*100)/100)));
+      $pnlPercent.textContent = (pnlPercent>=0?'+':'') + (pnlPercent*100).toFixed(2) + '%';
+      $roiText.textContent = (pnlPercent>=0?'+':'') + Math.round(pnlPercent*100) + '%';
+      $winrate.textContent = winrateFromPnl(pnlPercent);
+      $strategy.textContent = strategyFromPnl(pnlPercent);
+      $change24.textContent = '+' + (rand(0.5,6.5)).toFixed(2) + '%';
+      $risk.textContent = pnlPercent > 0.62 ? 'High' : (pnlPercent < 0.45 ? 'Low' : 'Medium');
+      const pts = makePointsFromPrices(avgPrice, priceNow, 22);
+      draw3D(pts);
     }
-    function randInt(min, max){
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-    function fmt(n){
-      return new Intl.NumberFormat(undefined,{style:'currency',currency:'USD',maximumFractionDigits:2}).format(n);
-    }
-    function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+  }
 
-    // Upward-only-ish sparkline generator
-    function makeSparkline(base, pnl, points=10){
-      const start = Math.max(10, base - pnl * rand(0.3, 0.6));
-      const end = base + pnl * rand(0.8, 1.2);
-      const arr = [];
-      for(let i=0;i<points;i++){
-        const t = i/(points-1);
-        const val = start + (end - start) * (t**(0.9 + rand(0,0.6))) + rand(-base*0.02, base*0.02);
-        arr.push(Math.max(1, Math.round(val*100)/100));
-      }
-      return arr;
-    }
+  // main generator: fetch prices, create state, render
+  async function generateAndRender(){
+    await fetchPrices();
+    const invested = +( (Math.random() * (50000 - 2000) + 2000).toFixed(2) );
+    const tok = tokenSelect.value;
+    const priceNow = tokenPrices[tok] || 1;
+    // ensure avgPrice <= priceNow so PNL positive
+    const avgPrice = +(priceNow * (rand(0.55, 0.95))).toFixed(2);
+    const { position, currentValue, pnl, pnlPercent } = computeFromPrices(priceNow, avgPrice, invested);
+    const state = { invested, avgPrice, priceNow, position, currentValue, pnl, pnlPercent };
+    recalcAndRender(state);
+  }
 
-    // Render sparkline SVG
-    function renderSparkline(points){
-      if (!$spark) return;
-      const w = 180, h = 48, pad = 6;
-      const min = Math.min(...points), max = Math.max(...points);
-      const range = Math.max(1e-6, max - min);
-      const coords = points.map((p,i)=>{
-        const x = pad + (i/(points.length-1)) * (w - pad*2);
-        const y = h - pad - ((p-min)/range) * (h - pad*2);
-        return [x,y];
-      });
-      const path = coords.map((c,i)=> (i===0? 'M ':'L ') + c[0].toFixed(2) + ' ' + c[1].toFixed(2)).join(' ');
-      const color = points[points.length-1] >= points[0] ? '#10b981' : '#ef4444';
-      const areaPath = coords.map((c,i)=> (i===0? 'M ':'L ') + c[0].toFixed(2) + ' ' + c[1].toFixed(2)).join(' ') + ' L ' + (w-pad) + ' ' + (h-pad) + ' L ' + pad + ' ' + (h-pad) + ' Z';
-      $spark.innerHTML = '';
-      const ns = 'http://www.w3.org/2000/svg';
-      const area = document.createElementNS(ns, 'path');
-      area.setAttribute('d', areaPath);
-      area.setAttribute('fill', color);
-      area.setAttribute('fill-opacity', '0.06');
-      const pathEl = document.createElementNS(ns, 'path');
-      pathEl.setAttribute('d', path.replace(/^L /,'').replace(/ M /,'M'));
-      pathEl.setAttribute('fill', 'none');
-      pathEl.setAttribute('stroke', color);
-      pathEl.setAttribute('stroke-width', '2');
-      pathEl.setAttribute('stroke-linecap','round');
-      pathEl.setAttribute('stroke-linejoin','round');
-      $spark.appendChild(area);
-      $spark.appendChild(pathEl);
-    }
+  // initial run
+  (async function init(){
+    await fetchPrices();
+    generateAndRender();
+  })();
 
-    // Generate randomized but always-positive portfolio data
-    function generateData(){
-      const invested = Math.round(rand(2000, 50000) * 100) / 100;
-      const pnlPercent = clamp(rand(0.35, 0.7), 0.35, 0.75);
-      const pnl = Math.round(invested * pnlPercent * 100) / 100;
-      const avgPrice = Math.round(rand(Math.max(0.5, invested/2000), Math.max(1, invested/20)) * 100) / 100;
-      const position = Math.round((invested / avgPrice) * (1 + rand(-0.08,0.08)) * 10000) / 10000;
-      const change24 = (rand(1, 8)).toFixed(2);
-      const ath = Math.round((pnl + invested * rand(0.2, 1.5)) * 100) / 100;
-      const minutesAgo = randInt(0, 180);
-      const lastTrade = minutesAgo === 0 ? 'just now' : minutesAgo < 60 ? `${minutesAgo}m ago` : `${Math.floor(minutesAgo/60)}h ago`;
-      let risk = 'Medium';
-      if (pnlPercent > 0.62) risk = 'High';
-      else if (pnlPercent < 0.45) risk = 'Low';
-      const tradeCount = randInt(40, 220);
-      const winrate = randInt(70, 96) + '%';
-      const sharpe = (rand(0.9, 1.9)).toFixed(2);
-      const strategy = (pnlPercent > 0.55) ? 'Aggressive Growth' : 'Growth';
-      const spark = makeSparkline(invested, pnl, 10);
+  // events
+  document.getElementById('btn-refresh').addEventListener('click', ()=> {
+    generateAndRender();
+    $card.classList.add('tilted');
+    $card.animate([{transform:'scale(1)'},{transform:'scale(.996)'},{transform:'scale(1)'}],{duration:320}).onfinish = ()=> $card.classList.remove('tilted');
+  });
+  tokenSelect.addEventListener('change', ()=> generateAndRender());
+  document.getElementById('btn-details').addEventListener('click', ()=> alert('Details placeholder'));
+  document.getElementById('btn-export').addEventListener('click', ()=> alert('Export placeholder — use server renderer for production'));
 
-      return { invested, pnl, pnlPercent, avgPrice, position, change24, ath, lastTrade, risk, tradeCount, winrate, sharpe, strategy, spark };
-    }
-
-    // Apply data to DOM with small transitions (guard missing nodes)
-    function applyData(d){
-      if ($invested) $invested.textContent = fmt(d.invested);
-      if ($pnl) { $pnl.textContent = '+' + fmt(d.pnl); $pnl.classList.remove('negative'); $pnl.classList.add('positive'); }
-      if ($pnlPercent) $pnlPercent.textContent = '+' + (d.pnlPercent*100).toFixed(2) + '%';
-      if ($position) $position.textContent = d.position.toLocaleString();
-      if ($avgPrice) $avgPrice.textContent = 'Avg Price: ' + fmt(d.avgPrice);
-      if ($roiText) $roiText.textContent = '+' + Math.round(d.pnlPercent*100) + '%';
-      if ($pctBadge) { $pctBadge.style.background = 'rgba(255,255,255,0.18)'; $pctBadge.style.color = '#10b981'; }
-      if ($change24) $change24.textContent = d.change24 + '%';
-      if ($ath) $ath.textContent = fmt(d.ath);
-      if ($lastTrade) $lastTrade.textContent = d.lastTrade;
-      if ($risk) $risk.textContent = d.risk;
-      if ($strategy) $strategy.textContent = d.strategy;
-      if ($winrate) $winrate.textContent = d.winrate;
-      if ($trades) $trades.textContent = d.tradeCount;
-      if ($sharpe) $sharpe.textContent = d.sharpe;
-
-      renderSparkline(d.spark);
-    }
-
-    // Initial render
-    let current = generateData();
-    applyData(current);
-
-    // Refresh button behavior
-    const $btnRefresh = document.getElementById('btn-refresh');
-    if ($btnRefresh) {
-      $btnRefresh.addEventListener('click', ()=>{
-        current = generateData();
-        applyData(current);
-        const card = document.querySelector('.card');
-        if (card) card.animate([{ transform: 'scale(1)' }, { transform: 'scale(0.996)' }, { transform: 'scale(1)' }], { duration: 300 });
-      });
-    }
-
-    // Details button placeholder (inside card)
-    const $btnDetails = document.getElementById('btn-details');
-    if ($btnDetails) {
-      $btnDetails.addEventListener('click', ()=>{
-        alert('Details modal: implement your transactions list, filters, and trade view here.');
-      });
-    }
+  // tilt interaction
+  (function enableTilt(){
+    const rect = () => $card.getBoundingClientRect();
+    let bounds = rect();
+    window.addEventListener('resize', ()=> bounds = rect());
+    $card.addEventListener('mousemove', e => {
+      const x = e.clientX - bounds.left, y = e.clientY - bounds.top;
+      const px = (x / bounds.width) - 0.5, py = (y / bounds.height) - 0.5;
+      const rx = clamp(-py * 9, -12, 12), ry = clamp(px * 12, -16, 16);
+      $card.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+    });
+    $card.addEventListener('mouseleave', ()=> $card.style.transform = '');
+  })();
   </script>
 </body>
 </html>
-
-
